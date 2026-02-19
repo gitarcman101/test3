@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="format-detection" content="telephone=no,address=no,email=no,date=no,url=no">
+<title>{{ subject_line | default('DETA Intelligence Brief') }}</title>
+<!--[if mso]>
+<noscript>
+<xml>
+<o:OfficeDocumentSettings>
+<o:AllowPNG/>
+<o:PixelsPerInch>96</o:PixelsPerInch>
+</o:OfficeDocumentSettings>
+</xml>
+</noscript>
+<![endif]-->
+<style>
+/* Reset */
+body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
+body { margin: 0 !important; padding: 0 !important; width: 100% !important; background-color: #111418; }
+a[x-apple-data-detectors] { color: inherit !important; text-decoration: none !important; font-size: inherit !important; font-family: inherit !important; font-weight: inherit !important; line-height: inherit !important; }
+
+/* Mobile */
+@media only screen and (max-width: 620px) {
+    .container { width: 100% !important; max-width: 100% !important; }
+    .mobile-padding { padding-left: 16px !important; padding-right: 16px !important; }
+    .mobile-full { width: 100% !important; display: block !important; }
+    .mobile-hide { display: none !important; }
+    .mobile-center { text-align: center !important; }
+    .mobile-stack { display: block !important; width: 100% !important; }
+    .cta-btn { display: block !important; width: 100% !important; max-width: 260px !important; margin: 6px auto !important; }
+    .header-title { font-size: 20px !important; }
+}
+</style>
+</head>
+
+<body style="margin:0;padding:0;background-color:#111418;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Noto Sans KR','Malgun Gothic',sans-serif;word-break:keep-all;overflow-wrap:break-word;">
+
+<!-- Preheader (hidden preview text) -->
+<div style="display:none;font-size:1px;color:#111418;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">
+    {{ preview_text | default(greeting | default('이번 주 핵심 이슈를 정리했습니다.')) | truncate(120) }}
+    &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847;
+</div>
+
+<!-- Outer Wrapper -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#111418;">
+<tr><td align="center" style="padding:20px 12px;">
+
+<!-- Container -->
+<table role="presentation" class="container" width="600" cellpadding="0" cellspacing="0" border="0" style="background-color:#1C2127;border-radius:4px;overflow:hidden;">
+
+<!-- ========== HEADER ========== -->
+<tr>
+<td style="background-color:#1C2127;border-bottom:2px solid #383E47;padding:0;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+    <td style="padding:32px 36px 24px;" class="mobile-padding">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+        <!-- Top bar: brand + date -->
+        <tr>
+        <td>
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+            <td style="font-size:11px;letter-spacing:2px;color:#5F6B7C;font-weight:600;text-transform:uppercase;">DETA BRIEFING</td>
+            <td style="text-align:right;font-size:11px;color:#5F6B7C;">{{ issue_date | default('') }}</td>
+            </tr>
+            </table>
+        </td>
+        </tr>
+        <!-- Divider thin -->
+        <tr>
+        <td style="padding:14px 0 16px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+            <tr><td style="border-top:1px solid #2F343C;"></td></tr>
+            </table>
+        </td>
+        </tr>
+        <!-- Title -->
+        <tr>
+        <td>
+            <h1 class="header-title" style="margin:0;color:#E0E0E0;font-size:24px;font-weight:700;line-height:1.35;letter-spacing:-0.3px;">{{ newsletter_title | default('DETA Intelligence Brief') }}</h1>
+        </td>
+        </tr>
+        <tr>
+        <td style="padding-top:8px;">
+            <p style="margin:0;font-size:13px;color:#738091;line-height:1.5;">{{ tagline | default('') }}</p>
+        </td>
+        </tr>
+        </table>
+    </td>
+    </tr>
+    </table>
+</td>
+</tr>
+
+<!-- ========== GREETING ========== -->
+<tr>
+<td style="padding:24px 36px 0;" class="mobile-padding">
+    <p style="margin:0;font-size:14px;color:#ABB3BF;line-height:1.7;">{{ greeting | default('안녕하세요.') }}</p>
+</td>
+</tr>
+
+<!-- ========== INSIGHT 1 (Deep-Dive) ========== -->
+{% if insight_1 %}
+<tr>
+<td style="padding:28px 36px 0;" class="mobile-padding">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#252A31;border-radius:4px;border-left:3px solid #E0E0E0;">
+    <tr>
+    <td style="padding:20px 22px;">
+        <h3 style="margin:0 0 10px;font-size:16px;color:#E0E0E0;font-weight:600;line-height:1.4;">{{ insight_1.title }}</h3>
+        <p style="margin:0;font-size:13.5px;color:#8F99A8;line-height:1.75;">{{ insight_1.content }}</p>
+        {% if insight_1.source %}
+        <p style="margin:12px 0 0;font-size:11px;color:#5F6B7C;">Source: {{ insight_1.source }}</p>
+        {% endif %}
+    </td>
+    </tr>
+    </table>
+</td>
+</tr>
+{% endif %}
+
+<!-- ========== INSIGHT 2 (Deep-Dive) ========== -->
+{% if insight_2 %}
+<tr>
+<td style="padding:20px 36px 0;" class="mobile-padding">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#252A31;border-radius:4px;border-left:3px solid #738091;">
+    <tr>
+    <td style="padding:20px 22px;">
+        <h3 style="margin:0 0 10px;font-size:16px;color:#C5CBD3;font-weight:600;line-height:1.4;">{{ insight_2.title }}</h3>
+        <p style="margin:0;font-size:13.5px;color:#8F99A8;line-height:1.75;">{{ insight_2.content }}</p>
+        {% if insight_2.source %}
+        <p style="margin:12px 0 0;font-size:11px;color:#5F6B7C;">Source: {{ insight_2.source }}</p>
+        {% endif %}
+    </td>
+    </tr>
+    </table>
+</td>
+</tr>
+{% endif %}
+
+<!-- ========== COMPANY RELEVANCE (시사점 + 핵심한줄 통합) ========== -->
+{% if company_relevance %}
+<tr>
+<td style="padding:24px 36px 0;" class="mobile-padding">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#252A31;border-radius:4px;border:1px solid #383E47;">
+    <tr>
+    <td style="padding:16px 20px;">
+        <p style="margin:0;font-size:13px;color:#E0E0E0;line-height:1.6;font-weight:600;">{{ company_relevance }}{% if key_takeaway %} {{ key_takeaway }}{% endif %}</p>
+    </td>
+    </tr>
+    </table>
+</td>
+</tr>
+{% endif %}
+
+<!-- ========== DIVIDER ========== -->
+<tr>
+<td style="padding:28px 36px 0;" class="mobile-padding">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr><td style="border-top:1px solid #2F343C;"></td></tr>
+    </table>
+</td>
+</tr>
+
+<!-- ========== CTA ========== -->
+<tr>
+<td style="padding:24px 36px 0;" class="mobile-padding">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+    <td style="text-align:center;padding-bottom:18px;">
+        <p style="margin:0;font-size:14px;color:#ABB3BF;font-weight:500;">{{ cta | default('더 자세한 시장 분석이 필요하시면') }}</p>
+    </td>
+    </tr>
+    <tr>
+    <td align="center">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+        <td align="center" style="padding:0 5px;">
+            <!--[if mso]>
+            <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ report_url | default('https://deta.kr') }}" style="height:40px;v-text-anchor:middle;width:180px;" arcsize="10%" stroke="f" fillcolor="#E0E0E0">
+            <w:anchorlock/>
+            <center>
+            <![endif]-->
+            <a href="{{ report_url | default('https://deta.kr') }}" class="cta-btn" style="display:inline-block;background:#E0E0E0;color:#1C2127;padding:10px 24px;text-decoration:none;border-radius:3px;font-weight:700;font-size:12px;letter-spacing:0.5px;text-transform:uppercase;mso-padding-alt:0;text-align:center;">
+                Sample Report
+            </a>
+            <!--[if mso]></center></v:roundrect><![endif]-->
+        </td>
+        <td align="center" style="padding:0 5px;">
+            <!--[if mso]>
+            <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ consult_url | default('https://deta.kr') }}" style="height:40px;v-text-anchor:middle;width:180px;" arcsize="10%" stroke="t" strokecolor="#5F6B7C" fillcolor="#1C2127">
+            <w:anchorlock/>
+            <center>
+            <![endif]-->
+            <a href="{{ consult_url | default('https://deta.kr') }}" class="cta-btn" style="display:inline-block;background:#1C2127;color:#ABB3BF;padding:9px 24px;text-decoration:none;border-radius:3px;font-weight:600;font-size:12px;border:1px solid #5F6B7C;letter-spacing:0.5px;text-transform:uppercase;mso-padding-alt:0;text-align:center;">
+                Contact Us
+            </a>
+            <!--[if mso]></center></v:roundrect><![endif]-->
+        </td>
+        </tr>
+        </table>
+    </td>
+    </tr>
+    </table>
+</td>
+</tr>
+
+<!-- ========== SOURCE LINKS ========== -->
+{% if sources %}
+<tr>
+<td style="padding:28px 36px 0;" class="mobile-padding">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+    <td style="padding-bottom:10px;">
+        <span style="font-size:10px;font-weight:700;color:#5F6B7C;text-transform:uppercase;letter-spacing:1.5px;">SOURCES</span>
+    </td>
+    </tr>
+    {% for src in sources[:5] %}
+    <tr>
+    <td style="padding:3px 0;">
+        <a href="{{ src.url }}" style="font-size:12px;color:#738091;text-decoration:none;line-height:1.6;" target="_blank">{{ src.title | truncate(65) }}</a>
+        <span style="font-size:11px;color:#404854;"> — {{ src.source }}</span>
+    </td>
+    </tr>
+    {% endfor %}
+    </table>
+</td>
+</tr>
+{% endif %}
+
+<!-- ========== FOOTER ========== -->
+<tr>
+<td style="padding-top:28px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#111418;border-top:1px solid #2F343C;">
+    <tr>
+    <td style="padding:20px 36px;" class="mobile-padding">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+        <td style="text-align:center;padding-bottom:8px;">
+            <span style="font-size:11px;letter-spacing:2px;color:#404854;font-weight:600;">DETA</span>
+            <span style="font-size:11px;color:#383E47;"> · 데타에이아이컨설팅코리아</span>
+        </td>
+        </tr>
+        <tr>
+        <td style="text-align:center;">
+            <p style="margin:0;font-size:10px;color:#383E47;line-height:1.6;">
+                &copy; {{ year | default('2026') }} DETA. All rights reserved.
+            </p>
+        </td>
+        </tr>
+        </table>
+    </td>
+    </tr>
+    </table>
+</td>
+</tr>
+
+</table>
+<!-- /Container -->
+
+</td></tr>
+</table>
+<!-- /Outer Wrapper -->
+
+</body>
+</html>

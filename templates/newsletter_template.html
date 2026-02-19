@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ newsletter_title }}</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 30px;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .insight {
+            background-color: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .insight-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .insight-content {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #555;
+        }
+        .source {
+            font-size: 12px;
+            color: #999;
+            margin-top: 10px;
+        }
+        .cta-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            text-align: center;
+            margin-top: 40px;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: white;
+            color: #667eea;
+            padding: 14px 30px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            margin: 10px;
+            transition: transform 0.2s;
+        }
+        .cta-button:hover {
+            transform: translateY(-2px);
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+        }
+        .reading-time {
+            display: inline-block;
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>{{ newsletter_title }}</h1>
+            <p>{{ tagline }}</p>
+        </div>
+        
+        <!-- Content -->
+        <div class="content">
+            <div class="reading-time">⏱️ 읽기 시간: {{ reading_time }}분</div>
+            
+            <!-- Main Issue -->
+            <div class="section">
+                <div class="section-title">🔥 이번 주 메인 이슈</div>
+                <div class="insight">
+                    <div class="insight-title">{{ main_issue_title }}</div>
+                    <div class="insight-content">{{ main_issue_content }}</div>
+                    <div class="source">📌 출처: {{ main_issue_source }}</div>
+                </div>
+            </div>
+            
+            <!-- Insights -->
+            <div class="section">
+                <div class="section-title">💡 핵심 인사이트</div>
+                
+                {% for insight in insights %}
+                <div class="insight">
+                    <div class="insight-title">{{ insight.title }}</div>
+                    <div class="insight-content">{{ insight.content }}</div>
+                    <div class="source">📌 출처: {{ insight.source }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- CTA Section -->
+        <div class="cta-section">
+            <h3 style="color: white; margin-top: 0;">더 깊은 인사이트가 필요하신가요?</h3>
+            <a href="{{ sample_report_url }}" class="cta-button">📊 샘플 리포트 다운로드</a>
+            <a href="{{ consultation_url }}" class="cta-button">💬 무료 상담 신청</a>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p>© 2026 DETA AI Consulting Korea. All rights reserved.</p>
+            <p>
+                <a href="{{ unsubscribe_url }}" style="color: #999;">수신거부</a> | 
+                <a href="{{ manage_preferences_url }}" style="color: #999;">구독 설정</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

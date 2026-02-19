@@ -1,0 +1,57 @@
+# ============================================================
+# DETA Newsletter Pipeline Configuration
+# ============================================================
+
+newsletter:
+  name: "DETA Intelligence Brief"
+  tagline: "1분 안에 읽는 글로벌 시장 인텔리전스"
+  reading_time_minutes: 1
+  template: "newsletter_v2.html"
+
+# --- Apollo Enrichment ---
+apollo:
+  enrichment_options:
+    reveal_personal_emails: false
+    reveal_phone_number: false
+    run_waterfall_email: false
+    run_waterfall_phone: false
+  batch_size: 10
+
+# --- 뉴스 수집 ---
+news_collector:
+  source: "google_news_rss"           # google_news_rss (무료)
+  crawl_body: true                    # trafilatura 본문 크롤링
+  max_per_category: 3                 # 카테고리당 최대 기사 수
+  lookback_days: 14                   # 수집 기간 (일)
+  language: "ko"
+  country: "KR"
+
+# --- AI 인사이트 ---
+ai:
+  model: "claude-sonnet-4-20250514"
+  max_tokens: 1500
+  temperature: 0.7
+
+# --- 발송 ---
+sending:
+  mode: "auto"                        # auto | smtp | stibee | bulk
+  delay_seconds: 1.0                  # 발송 간격 (초)
+
+# --- 스케줄링 ---
+scheduling:
+  send_day: "Tuesday"
+  send_time: "09:00"
+  timezone: "Asia/Seoul"
+
+# --- 성과 KPI ---
+performance:
+  kpis:
+    target_open_rate: 0.38
+    target_click_rate: 0.065
+    target_conversions_per_month: 7
+    target_downloads_per_issue: 75
+
+# --- 로깅 ---
+logging:
+  level: "INFO"
+  file: "logs/automation.log"

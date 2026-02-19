@@ -1,0 +1,66 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Environment variables (API keys, secrets)
+.env
+config/.env
+
+# Logs
+logs/
+*.log
+
+# Data & Output (런타임 생성물)
+data/
+output/
+*.csv
+*.xlsx
+*.json
+
+# 예외: config.yaml은 추적
+!config/config.yaml
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Images
+*.png
+*.jpg
+*.jpeg
+*.gif
+
+# Legacy cache
+CUsersYonghdeta_newsletter*
+
+# Windows artifacts
+nul
+
+# Claude plans
+.claude/

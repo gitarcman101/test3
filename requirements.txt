@@ -1,0 +1,26 @@
+# ============================================================
+# DETA Newsletter Pipeline — Dependencies
+# ============================================================
+
+# Core
+requests>=2.31.0
+jinja2>=3.1.3
+
+# AI Processing
+anthropic>=0.79.0
+
+# News Collection (본문 크롤링)
+trafilatura>=2.0.0
+
+# Excel Export
+openpyxl>=3.1.2
+
+# Config (선택)
+pyyaml>=6.0.1
+
+# Logging (선택)
+loguru>=0.7.2
+
+# Streamlit Dashboard
+streamlit>=1.40.0
+pandas>=2.0.0
