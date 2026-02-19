@@ -241,6 +241,47 @@ st.markdown("""
 
 
 # ============================================================
+# 메인 앱 인증 (리뷰 대시보드와 동일한 REVIEW_PASSWORD 사용)
+# ============================================================
+
+def _check_main_auth():
+    """비밀번호 인증. REVIEW_PASSWORD가 env에 없으면 인증 스킵."""
+    env = load_env_keys()
+    password = env.get("REVIEW_PASSWORD", "")
+
+    if not password:
+        return True  # 비밀번호 미설정 시 인증 없이 접근 허용
+
+    if st.session_state.get("main_authenticated"):
+        return True
+
+    st.markdown("""
+    <div class="palantir-header">DETA PIPELINE</div>
+    <div class="palantir-title">뉴스레터 파이프라인</div>
+    <div class="palantir-sub">접근 권한이 필요합니다.</div>
+    """, unsafe_allow_html=True)
+    st.markdown("")
+
+    with st.form("main_auth_form"):
+        pw_input = st.text_input("비밀번호", type="password", placeholder="비밀번호를 입력하세요")
+        submitted = st.form_submit_button("로그인", type="primary")
+
+    if submitted:
+        if pw_input == password:
+            st.session_state.main_authenticated = True
+            st.rerun()
+        else:
+            st.error("비밀번호가 올바르지 않습니다.")
+
+    st.caption("config/.env의 REVIEW_PASSWORD로 접근을 제어합니다.")
+    return False
+
+
+if not _check_main_auth():
+    st.stop()
+
+
+# ============================================================
 # 세션 상태 초기화
 # ============================================================
 
@@ -255,6 +296,7 @@ def init_session():
         "html_by_lead": {},            # {lead_idx: html_string}
         "html_paths_by_lead": {},      # {lead_idx: filepath}
         "send_status_by_lead": {},     # {lead_idx: "pending"|"sent"|"failed"}
+        "send_errors_by_lead": {},     # {lead_idx: error_message}
         "current_lead_idx": 0,         # Step 2~4 리드 선택 UI
         "current_run_id": "",          # PipelineStore run ID
         "pipeline_log": [],
@@ -280,12 +322,12 @@ def _invalidate_downstream(from_step: int, lead_idx: int = None):
         if from_step <= 1:
             targets = ["news_by_lead", "selected_news_by_lead",
                        "insights_by_lead", "html_by_lead",
-                       "html_paths_by_lead", "send_status_by_lead"]
+                       "html_paths_by_lead", "send_status_by_lead", "send_errors_by_lead"]
         elif from_step <= 2:
             targets = ["insights_by_lead", "html_by_lead",
-                       "html_paths_by_lead", "send_status_by_lead"]
+                       "html_paths_by_lead", "send_status_by_lead", "send_errors_by_lead"]
         elif from_step <= 3:
-            targets = ["html_by_lead", "html_paths_by_lead", "send_status_by_lead"]
+            targets = ["html_by_lead", "html_paths_by_lead", "send_status_by_lead", "send_errors_by_lead"]
         for t in targets:
             if lead_idx in st.session_state.get(t, {}):
                 del st.session_state[t][lead_idx]
@@ -295,12 +337,12 @@ def _invalidate_downstream(from_step: int, lead_idx: int = None):
         if from_step <= 1:
             targets = ["news_by_lead", "selected_news_by_lead",
                        "insights_by_lead", "html_by_lead",
-                       "html_paths_by_lead", "send_status_by_lead"]
+                       "html_paths_by_lead", "send_status_by_lead", "send_errors_by_lead"]
         elif from_step <= 2:
             targets = ["insights_by_lead", "html_by_lead",
-                       "html_paths_by_lead", "send_status_by_lead"]
+                       "html_paths_by_lead", "send_status_by_lead", "send_errors_by_lead"]
         elif from_step <= 3:
-            targets = ["html_by_lead", "html_paths_by_lead", "send_status_by_lead"]
+            targets = ["html_by_lead", "html_paths_by_lead", "send_status_by_lead", "send_errors_by_lead"]
         for t in targets:
             st.session_state[t] = {}
 
@@ -840,7 +882,7 @@ if st.session_state.step == 1:
                         # 삭제된 리드 이후의 인덱스 재정렬
                         for store_name in ["news_by_lead", "selected_news_by_lead",
                                            "insights_by_lead", "html_by_lead",
-                                           "html_paths_by_lead", "send_status_by_lead"]:
+                                           "html_paths_by_lead", "send_status_by_lead", "send_errors_by_lead"]:
                             old_store = st.session_state.get(store_name, {})
                             new_store = {}
                             for k, v in old_store.items():
@@ -1558,13 +1600,15 @@ elif st.session_state.step == 5:
                             "name": ld["이름"],
                             "company": ld["회사명"],
                             "subject_line": insight.get("subject_line", "산업 인사이트 브리핑"),
-                            "greeting": insight.get("greeting", f"{ld['이름']}님, 안녕하세요."),
+                            "greeting": insight.get("greeting", f"안녕하세요, {ld['이름']}님."),
                             "insight_html": html,
                         }
 
-                        success = client.trigger_auto_email(auto_email_url, ld["이메일"], custom_fields)
+                        success, error_msg = client.trigger_auto_email(auto_email_url, ld["이메일"], custom_fields)
                         send_result = "sent" if success else "failed"
                         st.session_state.send_status_by_lead[lead_idx] = send_result
+                        if not success:
+                            st.session_state.send_errors_by_lead[lead_idx] = error_msg
                         progress_bar.progress((prog_i + 1) / len(pending_leads))
 
                         # 파이프라인 스토어에 발송 상태 저장
@@ -1594,6 +1638,9 @@ elif st.session_state.step == 5:
                 col_fail_info, col_retry = st.columns([3, 1])
                 with col_fail_info:
                     st.markdown(f"❌ {ld['이름']} ({ld['이메일']})")
+                    error_detail = st.session_state.get("send_errors_by_lead", {}).get(fi, "")
+                    if error_detail:
+                        st.caption(f"실패 원인: {error_detail}")
                 with col_retry:
                     if st.button("재시도", key=f"retry_{fi}"):
                         st.session_state.send_status_by_lead[fi] = "pending"
@@ -1636,7 +1683,9 @@ elif st.session_state.step == 5:
                 )
 
                 # ── JavaScript 원클릭 복사 버튼 ──
-                _html_json = _json.dumps(sel_html, ensure_ascii=False)
+                # </script> 태그가 iframe을 깨뜨리지 않도록 이스케이프
+                _safe_html = sel_html.replace("</script>", "<\\/script>")
+                _html_json = _json.dumps(_safe_html, ensure_ascii=False)
                 _copy_component = f"""
                 <button id="copyHtmlBtn" style="
                     width:100%;padding:12px 24px;background:#252A31;color:#E0E0E0;

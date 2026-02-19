@@ -273,7 +273,7 @@ class StibeeClient:
     # ----------------------------------------------------------
     # 자동 이메일 API (v1.0) - 개인화 발송용
     # ----------------------------------------------------------
-    def trigger_auto_email(self, auto_email_url: str, subscriber_email: str, custom_fields: dict = None) -> bool:
+    def trigger_auto_email(self, auto_email_url: str, subscriber_email: str, custom_fields: dict = None) -> tuple:
         """
         자동 이메일 트리거 (1건씩 개인화 발송)
 
@@ -288,6 +288,9 @@ class StibeeClient:
             subscriber_email: 수신자 이메일
             custom_fields: 치환할 사용자 정의 필드
                 예: {"name": "홍길동", "insight": "<p>인사이트 내용</p>"}
+
+        Returns:
+            tuple: (success: bool, message: str)
         """
         payload = {
             "subscriber": subscriber_email,
@@ -302,13 +305,20 @@ class StibeeClient:
                 timeout=15,
             )
             if resp.status_code == 200:
-                return True
+                return True, "발송 성공"
             else:
+                error_msg = f"HTTP {resp.status_code}: {resp.text[:200]}"
                 print(f"  ⚠️ 자동 이메일 트리거 실패 ({resp.status_code}): {resp.text[:200]}")
-                return False
+                return False, error_msg
+        except requests.exceptions.Timeout:
+            print("  ❌ 자동 이메일 트리거 시간 초과")
+            return False, "요청 시간 초과 (15초)"
+        except requests.exceptions.ConnectionError as e:
+            print(f"  ❌ 자동 이메일 연결 실패: {e}")
+            return False, f"연결 실패: {str(e)[:100]}"
         except Exception as e:
             print(f"  ❌ 자동 이메일 트리거 오류: {e}")
-            return False
+            return False, f"오류: {str(e)[:150]}"
 
     # ----------------------------------------------------------
     # 내부 헬퍼
@@ -547,7 +557,7 @@ def send_personalized_via_auto_email(
             "name": name,
             "company": company,
             "subject_line": insight.get("subject_line", "산업 인사이트 브리핑"),
-            "greeting": insight.get("greeting", f"{name}님, 안녕하세요."),
+            "greeting": insight.get("greeting", f"안녕하세요, {name}님."),
             "industry_insight": insight.get("industry_insight", ""),
             "company_relevance": insight.get("company_relevance", ""),
             "key_takeaway": insight.get("key_takeaway", ""),
@@ -556,7 +566,7 @@ def send_personalized_via_auto_email(
             "insight_html": html,
         }
 
-        success = client.trigger_auto_email(url, email, custom_fields)
+        success, _msg = client.trigger_auto_email(url, email, custom_fields)
         if success:
             print(f"  ✅ 발송 완료")
             sent += 1

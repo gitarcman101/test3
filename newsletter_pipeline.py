@@ -402,7 +402,7 @@ Search for this information in a structured way. As you gather data, develop sev
 아래 JSON 형식으로 정확히 응답해주세요 (JSON만, 다른 텍스트 없이):
 {{
     "subject_line": "{company}를 위한 {industry} 이슈 브리핑",
-    "greeting": "안녕하세요, {name} {title}님. {company}에 직접적으로 영향을 줄 수 있는 {industry} 핵심 이슈를 심층 분석했습니다. (title이 부서명이면 생략하고 '{name}님'으로만 표기. title이 비어있어도 '{name}님'으로만 표기. 영문 직함은 무시하고 '{name}님'으로만 표기.)",
+    "greeting": "인사 문구 (규칙: title이 유효한 한국어 직함(대표, 이사, 부장, 팀장, 과장, 매니저 등)이면 '안녕하세요, {name} {title}님.' / title이 비어있거나 부서명(부서,팀,본부,실,센터 포함)이거나 영문이면 '안녕하세요, {name}님.' — 이름과 님 사이에 공백 넣지 말 것). 뒤에 '{company}에 직접적으로 영향을 줄 수 있는 {industry} 핵심 이슈를 심층 분석했습니다.' 이어붙이기.",
     "insight_1": {{
         "title": "인사이트 내용을 함축하는 구체적 제목 (고정 라벨 금지)",
         "content": "이슈 배경 + {company} 관점 Deep-Dive 분석 (2-3문장, 최대 3줄)",
@@ -440,7 +440,18 @@ Search for this information in a structured way. As you gather data, develop sev
             if response_text.startswith("```"):
                 response_text = re.sub(r"^```(?:json)?\s*", "", response_text)
                 response_text = re.sub(r"\s*```$", "", response_text)
-            return json.loads(response_text)
+            parsed = json.loads(response_text)
+
+            # Claude 응답의 과다 개행 정리
+            def _clean_nl(obj):
+                if isinstance(obj, str):
+                    return re.sub(r'\n{3,}', '\n\n', obj).strip()
+                if isinstance(obj, dict):
+                    return {k: _clean_nl(v) for k, v in obj.items()}
+                if isinstance(obj, list):
+                    return [_clean_nl(v) for v in obj]
+                return obj
+            return _clean_nl(parsed)
         except json.JSONDecodeError as je:
             print(f"  ⚠️ JSON 파싱 실패, 폴백 사용")
             print(f"  📝 Claude 응답 (처음 500자): {response_text[:500]}")
@@ -580,9 +591,17 @@ class FallbackInsightGenerator:
 </ul>
 """
 
+        # 직함 유효성 판별 (한국어 직함만 사용)
+        _title_valid = (
+            bool(title) and title.strip() and title != name
+            and not any(k in title for k in ["부서", "팀", "본부", "실", "센터"])
+            and not title.strip().isascii()  # 영문 직함 제외
+        )
+        greeting_prefix = f"안녕하세요, {name} {title}님." if _title_valid else f"안녕하세요, {name}님."
+
         return {
             "subject_line": f"[{industry}] {company}를 위한 핵심 이슈 브리핑",
-            "greeting": f"안녕하세요, {name} {title}님. {company}에 직접적으로 영향을 줄 수 있는 {industry} 핵심 이슈를 분석했습니다." if title and title != name and not any(k in title for k in ["부서", "팀", "본부", "실", "센터"]) else f"안녕하세요, {name}님. {company}에 직접적으로 영향을 줄 수 있는 {industry} 핵심 이슈를 분석했습니다.",
+            "greeting": f"{greeting_prefix} {company}에 직접적으로 영향을 줄 수 있는 {industry} 핵심 이슈를 분석했습니다.",
             "insight_1": insight1,
             "insight_2": insight2,
             "industry_insight": industry_insight_html,
@@ -683,6 +702,16 @@ class NewsletterBuilder:
             "report_url": "https://deta.kr",
             "consult_url": "https://deta.kr",
         }
+
+        # context 값의 과다 개행 정리 (HTML 렌더 전)
+        for key in list(context.keys()):
+            val = context[key]
+            if isinstance(val, str):
+                context[key] = re.sub(r'\n{3,}', '\n\n', val)
+            elif isinstance(val, dict):
+                for k2 in list(val.keys()):
+                    if isinstance(val[k2], str):
+                        val[k2] = re.sub(r'\n{3,}', '\n\n', val[k2])
 
         # Jinja2 렌더링
         if self._use_jinja and (self.template_dir / template_name).exists():
