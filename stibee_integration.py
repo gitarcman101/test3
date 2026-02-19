@@ -42,7 +42,9 @@ except ImportError:
 # ============================================================
 
 def _load_env() -> dict:
+    import os as _os
     env = {}
+    # 1) 로컬 파일 우선
     for env_path in [Path("config/.env"), Path(".env")]:
         if env_path.exists():
             for line in env_path.read_text(encoding="utf-8", errors="ignore").splitlines():
@@ -51,6 +53,20 @@ def _load_env() -> dict:
                     k, v = line.split("=", 1)
                     env[k.strip()] = v.strip().strip('"').strip("'")
             break
+    # 2) Streamlit Cloud secrets fallback
+    if not env:
+        try:
+            import streamlit as _st
+            for k, v in _st.secrets.items():
+                if isinstance(v, str):
+                    env[k] = v
+        except Exception:
+            pass
+    # 3) 환경변수 fallback
+    for key in ["STIBEE_API_KEY", "STIBEE_LIST_ID", "STIBEE_AUTO_EMAIL_URL",
+                "SENDER_EMAIL", "SENDER_NAME"]:
+        if key not in env and _os.environ.get(key):
+            env[key] = _os.environ[key]
     return env
 
 ENV = _load_env()
