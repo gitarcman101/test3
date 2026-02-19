@@ -401,7 +401,7 @@ Search for this information in a structured way. As you gather data, develop sev
 
 아래 JSON 형식으로 정확히 응답해주세요 (JSON만, 다른 텍스트 없이):
 {{
-    "subject_line": "{company}를 위한 {industry} 이슈 브리핑",
+    "subject_line": "이메일 제목 (규칙: 느낌표(!) 금지, 전체 대문자 금지, '무료/긴급/클릭/지금 바로' 등 스팸 트리거 단어 금지, 15자 이내 간결하게, {company}명 포함). 예: '{company} {industry} 시장 이슈 브리핑'",
     "greeting": "인사 문구 (규칙: title이 유효한 한국어 직함(대표, 이사, 부장, 팀장, 과장, 매니저 등)이면 '안녕하세요, {name} {title}님.' / title이 비어있거나 부서명(부서,팀,본부,실,센터 포함)이거나 영문이면 '안녕하세요, {name}님.' — 이름과 님 사이에 공백 넣지 말 것). 뒤에 '{company}에 직접적으로 영향을 줄 수 있는 {industry} 핵심 이슈를 심층 분석했습니다.' 이어붙이기.",
     "insight_1": {{
         "title": "인사이트 내용을 함축하는 구체적 제목 (고정 라벨 금지)",
@@ -744,6 +744,7 @@ class NewsletterBuilder:
 <html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>{ctx.get('subject_line','DETA Intelligence Brief')}</title></head>
 <body style="margin:0;padding:0;background:#111418;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Noto Sans KR','Malgun Gothic',sans-serif;word-break:keep-all;overflow-wrap:break-word;">
+<div style="display:none;font-size:1px;color:#111418;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">{ctx.get('preview_text', ctx.get('greeting', ''))}</div>
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#111418;"><tr><td align="center" style="padding:20px 12px;">
 <table width="600" cellpadding="0" cellspacing="0" style="background:#1C2127;border-radius:4px;overflow:hidden;">
 <tr><td style="background:#1C2127;border-bottom:2px solid #383E47;padding:32px 36px 24px;">
