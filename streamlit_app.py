@@ -1500,12 +1500,47 @@ elif st.session_state.step == 5:
             st.markdown("""
             <div style="background:#252A31;border:1px solid #383E47;border-radius:4px;padding:16px;">
                 <span style="color:#C5504C;">⚫ STIBEE_AUTO_EMAIL_URL 미설정</span><br>
-                <span style="color:#5F6B7C;font-size:12px;">
-                    스티비에서 자동 이메일 생성 → 트리거: API로 직접 요청 → API URL을 config/.env에 추가하세요.<br>
-                    <code>STIBEE_AUTO_EMAIL_URL=https://stibee.com/api/v1.0/auto/...</code>
+                <span style="color:#8F99A8;font-size:13px;margin-top:4px;">
+                    아래에서 자동 이메일 API URL을 직접 입력하거나, config/.env에 설정할 수 있습니다.
                 </span>
             </div>
             """, unsafe_allow_html=True)
+
+            # URL 직접 입력 필드
+            user_url = st.text_input(
+                "자동 이메일 API URL 직접 입력",
+                value=st.session_state.get("_manual_auto_email_url", ""),
+                placeholder="https://stibee.com/api/v1.0/auto/...",
+                help="스티비 > 자동 이메일 > 실행 중인 이메일 > API URL 복사",
+                key="_input_auto_email_url",
+            )
+            if user_url and user_url.strip().startswith("https://stibee.com/api/"):
+                auto_email_url = user_url.strip()
+                st.session_state["_manual_auto_email_url"] = auto_email_url
+                st.success("✅ URL이 입력되었습니다. 아래에서 발송할 수 있습니다.")
+            elif user_url and user_url.strip():
+                st.warning("URL은 `https://stibee.com/api/` 로 시작해야 합니다.")
+
+            # 설정 안내 가이드
+            with st.expander("📖 자동 이메일 API URL 설정 방법"):
+                st.markdown("""
+**스티비에서 자동 이메일을 만들고 API URL을 확인하는 방법:**
+
+1. [스티비](https://stibee.com) 로그인
+2. 좌측 메뉴 → **자동 이메일** → **+ 새로 만들기**
+3. **트리거**: **API로 직접 요청** 선택
+4. **주소록**: 사용 중인 주소록 선택 (ID: {list_id})
+5. 이메일 **제목**에 치환 변수 사용 가능: `$%subject_line%$`
+6. 이메일 **본문**에 `$%insight_html%$` 삽입 (전체 HTML 콘텐츠)
+7. **저장** 후 → **실행** 상태로 전환
+8. 실행 중인 자동 이메일의 **API URL 복사**
+9. 위 입력 필드에 붙여넣기 또는 `config/.env`에 설정:
+   ```
+   STIBEE_AUTO_EMAIL_URL=https://stibee.com/api/v1.0/auto/your-url-here
+   ```
+
+> **치환 변수 목록**: `$%name%$`, `$%company%$`, `$%subject_line%$`, `$%greeting%$`, `$%insight_html%$`
+                """.format(list_id=env.get("STIBEE_LIST_ID", "473532")))
             st.markdown("")
 
         # ── ① 구독자 일괄 등록 ──
@@ -1628,7 +1663,7 @@ elif st.session_state.step == 5:
                     log(f"발송 오류: {e}", "error")
 
         elif not auto_email_url:
-            st.info("자동 이메일 API URL 설정 후 일괄 발송이 가능합니다.")
+            st.info("⬆ 위에서 자동 이메일 API URL을 입력하면 발송 버튼이 활성화됩니다.")
 
         # 실패한 리드 개별 재시도
         if failed_leads:
