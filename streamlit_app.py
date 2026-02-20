@@ -241,6 +241,39 @@ st.markdown("""
 
 
 # ============================================================
+# 환경 변수 로드 (인증보다 먼저 정의되어야 함)
+# ============================================================
+
+def load_env_keys():
+    """config/.env 또는 Streamlit Cloud secrets에서 API 키 로드"""
+    env = {}
+    # 1) 로컬 파일 우선
+    for env_path in [Path("config/.env"), Path(".env")]:
+        if env_path.exists():
+            for line in env_path.read_text(encoding="utf-8", errors="ignore").splitlines():
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    k, v = line.split("=", 1)
+                    env[k.strip()] = v.strip().strip('"').strip("'")
+            break
+    # 2) Streamlit Cloud secrets (st.secrets) — 파일이 없을 때 fallback
+    if not env:
+        try:
+            for k, v in st.secrets.items():
+                if isinstance(v, str):
+                    env[k] = v
+        except Exception:
+            pass
+    # 3) 환경변수 fallback (개별 키)
+    for key in ["ANTHROPIC_API_KEY", "STIBEE_API_KEY", "STIBEE_LIST_ID",
+                "STIBEE_AUTO_EMAIL_URL", "APOLLO_API_KEY", "REVIEW_PASSWORD",
+                "SENDER_EMAIL", "SENDER_NAME"]:
+        if key not in env and os.environ.get(key):
+            env[key] = os.environ[key]
+    return env
+
+
+# ============================================================
 # 메인 앱 인증 (리뷰 대시보드와 동일한 REVIEW_PASSWORD 사용)
 # ============================================================
 
@@ -447,35 +480,6 @@ def log(msg: str, level: str = "info"):
     """파이프라인 로그 추가"""
     ts = datetime.now().strftime("%H:%M:%S")
     st.session_state.pipeline_log.append({"time": ts, "level": level, "msg": msg})
-
-
-def load_env_keys():
-    """config/.env 또는 Streamlit Cloud secrets에서 API 키 로드"""
-    env = {}
-    # 1) 로컬 파일 우선
-    for env_path in [Path("config/.env"), Path(".env")]:
-        if env_path.exists():
-            for line in env_path.read_text(encoding="utf-8", errors="ignore").splitlines():
-                line = line.strip()
-                if line and not line.startswith("#") and "=" in line:
-                    k, v = line.split("=", 1)
-                    env[k.strip()] = v.strip().strip('"').strip("'")
-            break
-    # 2) Streamlit Cloud secrets (st.secrets) — 파일이 없을 때 fallback
-    if not env:
-        try:
-            for k, v in st.secrets.items():
-                if isinstance(v, str):
-                    env[k] = v
-        except Exception:
-            pass
-    # 3) 환경변수 fallback (개별 키)
-    for key in ["ANTHROPIC_API_KEY", "STIBEE_API_KEY", "STIBEE_LIST_ID",
-                "STIBEE_AUTO_EMAIL_URL", "APOLLO_API_KEY", "REVIEW_PASSWORD",
-                "SENDER_EMAIL", "SENDER_NAME"]:
-        if key not in env and os.environ.get(key):
-            env[key] = os.environ[key]
-    return env
 
 
 # ============================================================
