@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="List-Unsubscribe" content="<mailto:unsubscribe@stibee.com>">
+  <title>{{ subject_line }}</title>
+</head>
+<body style="margin:0; padding:0; background-color:#ffffff; font-family:-apple-system, BlinkMacSystemFont, 'Malgun Gothic', '맑은 고딕', sans-serif; color:#333333; line-height:1.7; font-size:15px;">
+  <!-- Preheader (이메일 클라이언트 미리보기 텍스트) -->
+  <div style="display:none; font-size:1px; color:#ffffff; line-height:1px; max-height:0px; max-width:0px; opacity:0; overflow:hidden;">
+    {{ preview_text | default(greeting, true) }}
+  </div>
+
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#ffffff;">
+    <tr>
+      <td align="center" style="padding:20px 10px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width:600px; width:100%;">
+
+          <!-- 본문 -->
+          <tr>
+            <td style="padding:30px 20px 10px 20px; font-size:15px; line-height:1.8; color:#333333;">
+              {{ greeting }}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:10px 20px 20px 20px; font-size:15px; line-height:1.8; color:#333333;">
+              {{ body | replace('\n', '<br>') }}
+            </td>
+          </tr>
+
+          <!-- 서명 -->
+          <tr>
+            <td style="padding:20px 20px 10px 20px; border-top:1px solid #eeeeee;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td style="font-size:14px; line-height:1.6; color:#555555;">
+                    <strong style="color:#333333;">{{ sender_name | default('김용현', true) }}</strong> 드림<br>
+                    <span style="color:#888888;">DETA AI Consulting Korea | IndustryARC</span><br>
+                    <span style="color:#888888; font-size:13px;">
+                      {{ sender_email | default('yonghyun.kim@industryarc.com', true) }}
+                    </span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- 수신거부 -->
+          <tr>
+            <td style="padding:20px 20px 30px 20px; font-size:11px; color:#aaaaaa; text-align:center;">
+              본 메일은 {{ company }} {{ contact_name }}님께 발송되었습니다.<br>
+              수신을 원하지 않으시면 <a href="mailto:yonghyun.kim@industryarc.com?subject=수신거부" style="color:#888888; text-decoration:underline;">여기</a>를 클릭해 주세요.
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

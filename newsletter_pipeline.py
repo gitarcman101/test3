@@ -629,6 +629,220 @@ class FallbackInsightGenerator:
 
 
 # ============================================================
+# 콜드메일 인사이트 생성기 (Track A)
+# ============================================================
+
+class ColdEmailInsightGenerator:
+    """
+    콜드메일용 인사이트 생성기.
+    templates/prompts/cold_email.txt 프롬프트를 사용하여
+    150단어 이내의 간결한 콜드메일 본문을 생성.
+
+    출력:
+        {
+            "subject_line": "이메일 제목",
+            "greeting": "인사말",
+            "body": "본문",
+            "signature": "서명",
+        }
+    """
+
+    def __init__(self, api_key: str = "", model: str = "claude-sonnet-4-5-20250929"):
+        self.api_key = api_key or ANTHROPIC_API_KEY
+        if not self.api_key:
+            raise ValueError("ANTHROPIC_API_KEY가 설정되지 않았습니다.")
+        try:
+            from anthropic import Anthropic
+            self.client = Anthropic(api_key=self.api_key)
+        except ImportError:
+            raise ImportError("pip install anthropic 필요")
+        self.model = model
+
+        # 프롬프트 템플릿 로드
+        prompt_path = Path(__file__).parent / "templates" / "prompts" / "cold_email.txt"
+        if prompt_path.exists():
+            self.prompt_template = prompt_path.read_text(encoding="utf-8")
+        else:
+            logger.warning(f"콜드메일 프롬프트 파일 없음: {prompt_path}")
+            self.prompt_template = None
+
+    def generate_cold_email(
+        self,
+        lead: dict,
+        research_context: str = "",
+    ) -> dict:
+        """
+        콜드메일 본문 생성.
+
+        Args:
+            lead: 리드 정보 dict
+            research_context: format_research_for_prompt() 결과 텍스트
+
+        Returns:
+            {"subject_line", "greeting", "body", "signature"}
+        """
+        company = lead.get("company", lead.get("회사명", ""))
+        contact_name = lead.get("contact_name", lead.get("이름", ""))
+        contact_title = lead.get("contact_title", lead.get("직함", ""))
+        industry = lead.get("industry", lead.get("산업", ""))
+        trigger = lead.get("trigger", "")
+
+        if not trigger:
+            trigger = f"{company}의 {industry} 사업 관련"
+
+        if self.prompt_template:
+            prompt = self.prompt_template.format(
+                company=company,
+                contact_name=contact_name,
+                contact_title=contact_title,
+                industry=industry,
+                trigger=trigger,
+                research_context=research_context or "(수집된 리서치 없음)",
+            )
+        else:
+            # 프롬프트 파일 없을 때 인라인 폴백
+            prompt = f"""당신은 DETA AI Consulting Korea의 시장 분석 전문가입니다.
+
+아래 정보를 바탕으로 콜드메일 본문을 작성하세요.
+
+[리드 정보]
+- 회사: {company}
+- 담당자: {contact_name} {contact_title}
+- 산업: {industry}
+- 트리거: {trigger}
+
+[맞춤 리서치 결과]
+{research_context or "(없음)"}
+
+아래 JSON 형식으로 정확히 응답해주세요 (JSON만, 다른 텍스트 없이):
+{{
+  "subject_line": "이메일 제목 (15자 이내, 회사명 포함)",
+  "greeting": "{contact_name}님, 안녕하세요.",
+  "body": "본문 텍스트 (150단어 이내, 가치 선제공, 영업 느낌 최소화)",
+  "signature": "김용현 드림\\nDETA AI Consulting Korea | IndustryARC"
+}}"""
+
+        try:
+            message = self.client.messages.create(
+                model=self.model,
+                max_tokens=1500,
+                temperature=0.7,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            response_text = message.content[0].text.strip()
+
+            # JSON 파싱 (코드 블록 제거)
+            if response_text.startswith("```"):
+                response_text = re.sub(r"^```(?:json)?\s*", "", response_text)
+                response_text = re.sub(r"\s*```$", "", response_text)
+
+            parsed = json.loads(response_text)
+
+            # 필수 필드 검증
+            for key in ["subject_line", "greeting", "body"]:
+                if key not in parsed:
+                    parsed[key] = ""
+
+            if "signature" not in parsed:
+                parsed["signature"] = "김용현 드림\nDETA AI Consulting Korea | IndustryARC"
+
+            return parsed
+
+        except json.JSONDecodeError:
+            logger.error("콜드메일 JSON 파싱 실패, 폴백 사용")
+            return self._fallback(company, contact_name, contact_title, industry, trigger)
+        except Exception as e:
+            logger.error(f"콜드메일 Claude API 오류: {e}")
+            return self._fallback(company, contact_name, contact_title, industry, trigger)
+
+    @staticmethod
+    def _fallback(company, contact_name, contact_title, industry, trigger) -> dict:
+        """Claude 실패 시 템플릿 기반 폴백"""
+        title_str = f" {contact_title}" if contact_title else ""
+        return {
+            "subject_line": f"{company} {industry} 시장 동향",
+            "greeting": f"{contact_name}{title_str}님, 안녕하세요.",
+            "body": f"{trigger}와 관련하여 {industry} 시장의 최신 동향을 공유드립니다. "
+                    f"귀사의 사업에 영향을 줄 수 있는 주요 변화가 감지되고 있습니다. "
+                    f"저희가 이 분야에서 정리한 추가 분석 자료가 있는데, "
+                    f"혹시 관심 있으시면 보내드려도 될까요?",
+            "signature": "김용현 드림\nDETA AI Consulting Korea | IndustryARC",
+        }
+
+
+class ColdEmailBuilder:
+    """콜드메일 인사이트 → HTML 빌드 (cold_email.html 템플릿)"""
+
+    def __init__(self, template_dir: str = ""):
+        if not template_dir:
+            template_dir = str(Path(__file__).parent / "templates")
+        self.template_dir = Path(template_dir)
+
+        try:
+            from jinja2 import Environment, FileSystemLoader
+            self.jinja_env = Environment(
+                loader=FileSystemLoader(str(self.template_dir)),
+                autoescape=False,
+            )
+            self._use_jinja = True
+        except ImportError:
+            self._use_jinja = False
+
+    def build_html(self, cold_email: dict, lead: dict = None) -> str:
+        """
+        콜드메일 데이터를 HTML로 변환.
+
+        Args:
+            cold_email: ColdEmailInsightGenerator 결과
+            lead: 리드 정보 (회사명, 이름 등 — 템플릿 수신거부 영역용)
+
+        Returns:
+            HTML 문자열
+        """
+        lead = lead or {}
+        context = {
+            "subject_line": cold_email.get("subject_line", ""),
+            "preview_text": cold_email.get("greeting", ""),
+            "greeting": cold_email.get("greeting", ""),
+            "body": cold_email.get("body", ""),
+            "signature": cold_email.get("signature", ""),
+            "sender_name": "김용현",
+            "sender_email": "yonghyun.kim@industryarc.com",
+            "company": lead.get("company", lead.get("회사명", "")),
+            "contact_name": lead.get("contact_name", lead.get("이름", "")),
+        }
+
+        template_name = "cold_email.html"
+        if self._use_jinja and (self.template_dir / template_name).exists():
+            try:
+                template = self.jinja_env.get_template(template_name)
+                return template.render(**context)
+            except Exception as e:
+                logger.warning(f"콜드메일 Jinja2 렌더링 실패: {e}")
+
+        # 인라인 폴백
+        return self._build_inline(context)
+
+    @staticmethod
+    def _build_inline(ctx: dict) -> str:
+        """Jinja2 없을 때 인라인 HTML 폴백"""
+        body_html = ctx.get("body", "").replace("\n", "<br>")
+        return f"""<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">
+<title>{ctx.get('subject_line','')}</title></head>
+<body style="margin:0;padding:20px;background:#fff;font-family:-apple-system,'Malgun Gothic',sans-serif;color:#333;line-height:1.7;font-size:15px;">
+<div style="max-width:600px;margin:0 auto;">
+<p>{ctx.get('greeting','')}</p>
+<p>{body_html}</p>
+<hr style="border:none;border-top:1px solid #eee;margin:20px 0;">
+<p style="font-size:14px;color:#555;"><strong>{ctx.get('sender_name','김용현')}</strong> 드림<br>
+<span style="color:#888;">DETA AI Consulting Korea | IndustryARC</span><br>
+<span style="color:#888;font-size:13px;">{ctx.get('sender_email','yonghyun.kim@industryarc.com')}</span></p>
+<p style="font-size:11px;color:#aaa;text-align:center;margin-top:20px;">
+수신을 원하지 않으시면 <a href="mailto:yonghyun.kim@industryarc.com?subject=수신거부" style="color:#888;">여기</a>를 클릭해 주세요.</p>
+</div></body></html>"""
+
+
+# ============================================================
 # 뉴스레터 HTML 빌더 (Jinja2 기반)
 # ============================================================
 
