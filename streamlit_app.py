@@ -31,7 +31,7 @@ except (OSError, AttributeError):
 
 # ── 페이지 설정 ──
 st.set_page_config(
-    page_title="DETA Newsletter Pipeline",
+    page_title="DETA Cold Email Pipeline",
     page_icon="📧",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -91,8 +91,8 @@ def _check_main_auth():
         return True
 
     st.markdown("""
-    <div class="palantir-header">DETA PIPELINE</div>
-    <div class="palantir-title">뉴스레터 파이프라인</div>
+    <div class="palantir-header">DETA COLD EMAIL</div>
+    <div class="palantir-title">콜드메일 파이프라인</div>
     <div class="palantir-sub">접근 권한이 필요합니다.</div>
     """, unsafe_allow_html=True)
     st.markdown("")
@@ -292,9 +292,9 @@ with st.sidebar:
     # Palantir 스타일 브랜딩
     st.markdown("""
     <div style="padding: 8px 0 16px;">
-        <div class="palantir-header">DETA PIPELINE</div>
+        <div class="palantir-header">DETA COLD EMAIL</div>
         <div style="border-top: 1px solid #222222; margin: 10px 0;"></div>
-        <div style="font-size:13px; color:#666666;">Newsletter Automation</div>
+        <div style="font-size:13px; color:#666666;">1:1 Personalized Email</div>
     </div>
     """, unsafe_allow_html=True)
 

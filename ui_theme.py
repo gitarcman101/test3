@@ -64,7 +64,7 @@ PALANTIR_CSS = """
         position: relative;
     }
     [data-testid="stSidebarNavItems"] li:first-child a span::after {
-        content: "newsletter";
+        content: "cold email";
         visibility: visible;
         position: absolute;
         left: 0;

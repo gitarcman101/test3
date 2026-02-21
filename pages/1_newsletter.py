@@ -1,7 +1,7 @@
 """
-DETA Cold Email Pipeline — Track A
+DETA Newsletter Pipeline — Track B
 ====================================
-리드 입력 → 기업 리서치 → 콜드메일 생성 → 리뷰 → 발송
+리드 입력 → 기업 리서치 → 뉴스레터 생성 → 리뷰 → 발송
 
 Streamlit Multi-Page 기능으로 사이드바에 자동 등록됨.
 """
@@ -33,7 +33,7 @@ except (OSError, AttributeError):
 
 # ── 페이지 설정 ──
 st.set_page_config(
-    page_title="DETA Cold Email",
+    page_title="DETA Newsletter",
     page_icon="🎯",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -121,16 +121,16 @@ st.markdown("""
 with st.sidebar:
     st.markdown("""
     <div style="padding: 8px 0 16px;">
-        <div class="palantir-header">DETA COLD EMAIL</div>
+        <div class="palantir-header">DETA NEWSLETTER</div>
         <div style="border-top: 1px solid #222222; margin: 10px 0;"></div>
-        <div style="font-size:13px; color:#666666;">Track A: 1:1 Personalized</div>
+        <div style="font-size:13px; color:#666666;">Industry Newsletter</div>
     </div>
     """, unsafe_allow_html=True)
 
     ce_steps = {
         1: ("01", "리드 입력"),
         2: ("02", "기업 리서치"),
-        3: ("03", "메일 생성"),
+        3: ("03", "뉴스레터 생성"),
         4: ("04", "리뷰 & 발송"),
     }
     for num, (code, label) in ce_steps.items():
@@ -184,8 +184,8 @@ def _show_research_preview(research: dict):
 # ============================================================
 
 if st.session_state.ce_step == 1:
-    st.markdown("### 🎯 콜드메일 — 리드 입력")
-    st.markdown('<span style="color:#666666;font-size:14px;">콜드메일을 보낼 리드 정보를 입력합니다.</span>', unsafe_allow_html=True)
+    st.markdown("### 🎯 뉴스레터 — 리드 입력")
+    st.markdown('<span style="color:#666666;font-size:14px;">뉴스레터를 보낼 리드 정보를 입력합니다.</span>', unsafe_allow_html=True)
     st.markdown("")
 
     # 기존 CRM 리드 선택 또는 신규 입력
@@ -318,7 +318,7 @@ elif st.session_state.ce_step == 2:
 
 
 # ============================================================
-# STEP 3: 콜드메일 생성
+# STEP 3: 뉴스레터 생성
 # ============================================================
 
 elif st.session_state.ce_step == 3:
@@ -328,33 +328,96 @@ elif st.session_state.ce_step == 3:
         st.warning("리드가 선택되지 않았습니다.")
         st.stop()
 
-    st.markdown("### ✍️ 콜드메일 생성")
-    st.markdown(
-        f'<span style="color:#666666;font-size:14px;">'
-        f'**{lead["company"]}** {lead["contact_name"]}님께 보낼 콜드메일을 AI가 작성합니다.'
-        f'</span>',
-        unsafe_allow_html=True,
-    )
+    st.markdown("""
+    <div class="palantir-header">STEP 03</div>
+    <div class="palantir-title">뉴스레터 생성</div>
+    <div class="palantir-sub">AI가 리서치 기반으로 개인화된 뉴스레터를 작성합니다.</div>
+    """, unsafe_allow_html=True)
     st.markdown("")
 
-    if st.session_state.ce_email:
-        # 이미 생성된 메일 표시
-        email = st.session_state.ce_email
-        st.markdown(f"**제목:** {email.get('subject_line', '')}")
-        st.markdown(f"**인사:** {email.get('greeting', '')}")
-        st.markdown("**본문:**")
-        st.markdown(f"<div style='background:#111111;border:1px solid #222222;border-radius:2px;padding:16px;color:#AAAAAA;line-height:1.8;'>{email.get('body', '').replace(chr(10), '<br>')}</div>", unsafe_allow_html=True)
-        st.markdown(f"<span style='color:#555555;font-size:13px;'>{email.get('signature', '').replace(chr(10), '<br>')}</span>", unsafe_allow_html=True)
+    # ── 리드 & 리서치 요약 패널 ──
+    with st.expander(f"리드 정보 — {lead['company']} / {lead.get('contact_name', '')}", expanded=False):
+        col_info1, col_info2 = st.columns(2)
+        with col_info1:
+            st.markdown(f"**회사:** {lead.get('company', '')}")
+            st.markdown(f"**담당자:** {lead.get('contact_name', '')} ({lead.get('contact_title', '')})")
+            st.markdown(f"**이메일:** {lead.get('contact_email', '')}")
+        with col_info2:
+            st.markdown(f"**산업:** {lead.get('industry', '')}")
+            st.markdown(f"**트리거:** {lead.get('trigger', '(미입력)')}")
+            if research:
+                st.markdown(f"**리서치 기사:** {research.get('total_articles', 0)}건")
 
-        col1, col2 = st.columns(2)
+    if research and research.get("total_articles", 0) > 0:
+        with st.expander("리서치 요약 (프롬프트에 반영)", expanded=False):
+            from lead_researcher import format_research_for_prompt
+            st.code(format_research_for_prompt(research), language=None)
+
+    st.markdown('<div style="border-top:1px solid #222222;margin:16px 0;"></div>', unsafe_allow_html=True)
+
+    if st.session_state.ce_email:
+        # ── 생성된 메일 편집 가능 ──
+        email = st.session_state.ce_email
+
+        st.markdown('<span class="palantir-header">EMAIL PREVIEW & EDIT</span>', unsafe_allow_html=True)
+        st.markdown("")
+
+        edited_subject = st.text_input(
+            "제목",
+            value=email.get("subject_line", ""),
+            key="ce_edit_subject",
+        )
+        edited_greeting = st.text_input(
+            "인사말",
+            value=email.get("greeting", ""),
+            key="ce_edit_greeting",
+        )
+        edited_body = st.text_area(
+            "본문",
+            value=email.get("body", ""),
+            height=200,
+            key="ce_edit_body",
+        )
+        edited_signature = st.text_input(
+            "서명",
+            value=email.get("signature", "").replace("\n", " | "),
+            key="ce_edit_signature",
+        )
+
+        # 편집 내용 반영
+        email["subject_line"] = edited_subject
+        email["greeting"] = edited_greeting
+        email["body"] = edited_body
+        email["signature"] = edited_signature.replace(" | ", "\n")
+        st.session_state.ce_email = email
+
+        # 미리보기
+        with st.expander("메일 미리보기", expanded=True):
+            preview_body = email["body"].replace("\n", "<br>")
+            preview_sig = email["signature"].replace("\n", "<br>")
+            st.markdown(
+                f"<div style='background:#111111;border:1px solid #222222;border-radius:2px;padding:20px;'>"
+                f"<div style='color:#555555;font-size:11px;letter-spacing:1.5px;margin-bottom:12px;'>SUBJECT: {email['subject_line']}</div>"
+                f"<div style='color:#CCCCCC;margin-bottom:12px;'>{email['greeting']}</div>"
+                f"<div style='color:#AAAAAA;line-height:1.8;margin-bottom:16px;'>{preview_body}</div>"
+                f"<div style='color:#555555;font-size:13px;border-top:1px solid #222222;padding-top:12px;'>{preview_sig}</div>"
+                f"</div>",
+                unsafe_allow_html=True,
+            )
+
+        st.markdown("")
+        col1, col2, col3 = st.columns(3)
         with col1:
-            if st.button("🔄 재생성", use_container_width=True):
+            if st.button("재생성", use_container_width=True):
                 st.session_state.ce_email = None
                 st.session_state.ce_html = None
                 st.rerun()
         with col2:
-            if st.button("▶️ 리뷰 & 발송으로", use_container_width=True, type="primary"):
-                # HTML 생성
+            if st.button("Step 2로", use_container_width=True):
+                st.session_state.ce_step = 2
+                st.rerun()
+        with col3:
+            if st.button("리뷰 & 발송으로", use_container_width=True, type="primary"):
                 try:
                     from newsletter_pipeline import ColdEmailBuilder
                     builder = ColdEmailBuilder()
@@ -365,8 +428,22 @@ elif st.session_state.ce_step == 3:
                 st.session_state.ce_step = 4
                 st.rerun()
     else:
-        if st.button("🤖 Claude로 콜드메일 생성", use_container_width=True, type="primary"):
-            with st.spinner("콜드메일 작성 중..."):
+        # ── 생성 전: 트리거 수정 + 생성 버튼 ──
+        st.markdown('<span class="palantir-header">GENERATE</span>', unsafe_allow_html=True)
+        st.markdown("")
+
+        trigger_edit = st.text_input(
+            "연락 배경 (trigger)",
+            value=lead.get("trigger", ""),
+            placeholder="예: 최근 AI 투자 확대 발표",
+            key="ce_trigger_edit",
+        )
+        if trigger_edit != lead.get("trigger", ""):
+            lead["trigger"] = trigger_edit
+            st.session_state.ce_lead = lead
+
+        if st.button("뉴스레터 생성", use_container_width=True, type="primary"):
+            with st.spinner("Claude가 뉴스레터를 작성 중..."):
                 try:
                     from newsletter_pipeline import ColdEmailInsightGenerator
                     from lead_researcher import format_research_for_prompt
@@ -380,15 +457,14 @@ elif st.session_state.ce_step == 3:
 
                     email = gen.generate_cold_email(lead, research_context=research_text)
                     st.session_state.ce_email = email
-                    st.success("콜드메일 생성 완료")
                     st.rerun()
                 except Exception as e:
-                    st.error(f"콜드메일 생성 오류: {e}")
+                    st.error(f"뉴스레터 생성 오류: {e}")
 
-    st.markdown("")
-    if st.button("◀️ Step 2로 돌아가기"):
-        st.session_state.ce_step = 2
-        st.rerun()
+        st.markdown("")
+        if st.button("Step 2로 돌아가기"):
+            st.session_state.ce_step = 2
+            st.rerun()
 
 
 # ============================================================
@@ -407,7 +483,7 @@ elif st.session_state.ce_step == 4:
     st.markdown("### 📤 리뷰 & 발송")
     st.markdown(
         f'<span style="color:#666666;font-size:14px;">'
-        f'**{lead.get("contact_email", "")}**로 콜드메일을 발송합니다.'
+        f'**{lead.get("contact_email", "")}**로 뉴스레터를 발송합니다.'
         f'</span>',
         unsafe_allow_html=True,
     )
@@ -465,7 +541,7 @@ elif st.session_state.ce_step == 4:
                             st.success(f"발송 성공: {msg}")
                             # CRM 상태 업데이트
                             _crm.update_status(lead["lead_id"], "sent",
-                                               note=f"콜드메일 발송 → {lead.get('contact_email', '')}")
+                                               note=f"뉴스레터 발송 → {lead.get('contact_email', '')}")
                         else:
                             st.error(f"발송 실패: {msg}")
                     except Exception as e:
@@ -494,7 +570,7 @@ elif st.session_state.ce_step == 4:
             st.session_state.ce_step = 3
             st.rerun()
     with col_new:
-        if st.button("🔄 새 콜드메일 시작", use_container_width=True):
+        if st.button("🔄 새 뉴스레터 시작", use_container_width=True):
             st.session_state.ce_step = 1
             st.session_state.ce_lead = None
             st.session_state.ce_research = None
