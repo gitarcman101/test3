@@ -37,207 +37,9 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ── Palantir 다크 테마 CSS ──
-# 색상 체계: #111418(배경) #1C2127(컨테이너) #252A31(카드) #2F343C/#383E47(보더)
-#            #E0E0E0(주텍스트) #C5CBD3(서브) #ABB3BF(보조) #8F99A8(뮤트) #5F6B7C/#738091(캡션)
-st.markdown("""
-<style>
-    /* ── 전역 ── */
-    .stApp { background-color: #111418; }
-    .stApp > header { background-color: #111418 !important; }
-
-    /* ── 사이드바 ── */
-    [data-testid="stSidebar"] {
-        background-color: #1C2127;
-        border-right: 1px solid #2F343C;
-    }
-    [data-testid="stSidebar"] * { color: #ABB3BF; }
-    [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2,
-    [data-testid="stSidebar"] h3 { color: #E0E0E0 !important; }
-
-    /* ── 텍스트 ── */
-    h1, h2 { color: #E0E0E0 !important; letter-spacing: -0.3px; }
-    h3 { color: #C5CBD3 !important; }
-    p, li, span, label { color: #ABB3BF; }
-    .stCaption, caption { color: #5F6B7C !important; }
-    a { color: #738091 !important; }
-    a:hover { color: #ABB3BF !important; }
-
-    /* ── 입력 필드 ── */
-    .stTextInput > div > div > input,
-    .stTextArea > div > div > textarea,
-    .stSelectbox > div > div > div {
-        background-color: #252A31 !important;
-        border: 1px solid #383E47 !important;
-        color: #E0E0E0 !important;
-        border-radius: 4px !important;
-    }
-    .stTextInput > div > div > input:focus,
-    .stTextArea > div > div > textarea:focus {
-        border-color: #738091 !important;
-        box-shadow: 0 0 0 1px #738091 !important;
-    }
-    .stTextInput label, .stTextArea label,
-    .stSelectbox label, .stFileUploader label {
-        color: #8F99A8 !important;
-        font-weight: 500 !important;
-        font-size: 13px !important;
-    }
-
-    /* ── 버튼 ── */
-    .stButton > button {
-        background-color: #252A31 !important;
-        color: #E0E0E0 !important;
-        border: 1px solid #383E47 !important;
-        border-radius: 4px !important;
-        font-weight: 600 !important;
-        transition: all 0.15s ease;
-    }
-    .stButton > button:hover {
-        background-color: #2F343C !important;
-        border-color: #738091 !important;
-    }
-    .stButton > button[kind="primary"],
-    .stButton > button[data-testid="stBaseButton-primary"] {
-        background-color: #E0E0E0 !important;
-        color: #1C2127 !important;
-        border: none !important;
-    }
-    .stButton > button[kind="primary"]:hover,
-    .stButton > button[data-testid="stBaseButton-primary"]:hover {
-        background-color: #C5CBD3 !important;
-    }
-
-    /* ── 탭 ── */
-    .stTabs [data-baseweb="tab-list"] {
-        background-color: #1C2127;
-        border-radius: 4px;
-        padding: 4px;
-        gap: 4px;
-    }
-    .stTabs [data-baseweb="tab"] {
-        background-color: transparent !important;
-        color: #8F99A8 !important;
-        border-radius: 4px !important;
-        font-weight: 500;
-    }
-    .stTabs [aria-selected="true"] {
-        background-color: #252A31 !important;
-        color: #E0E0E0 !important;
-    }
-    .stTabs [data-baseweb="tab-panel"] {
-        padding-top: 16px;
-    }
-
-    /* ── 알림 박스 ── */
-    .stAlert > div {
-        border-radius: 4px !important;
-        border-width: 1px !important;
-    }
-    [data-testid="stAlert"][data-type="info"] > div {
-        background-color: rgba(28, 33, 39, 0.8) !important;
-        border-color: #383E47 !important;
-    }
-
-    /* ── 체크박스 ── */
-    .stCheckbox label span { color: #ABB3BF !important; }
-
-    /* ── 구분선 ── */
-    hr { border-color: #2F343C !important; }
-
-    /* ── 메트릭 카드 ── */
-    [data-testid="stMetric"] {
-        background-color: #252A31;
-        border: 1px solid #383E47;
-        border-radius: 4px;
-        padding: 16px;
-    }
-    [data-testid="stMetricLabel"] { color: #8F99A8 !important; }
-    [data-testid="stMetricValue"] { color: #E0E0E0 !important; }
-
-    /* ── 데이터프레임 ── */
-    .stDataFrame { border: 1px solid #383E47; border-radius: 4px; }
-
-    /* ── 파일 업로더 ── */
-    [data-testid="stFileUploader"] > div {
-        background-color: #1C2127 !important;
-        border: 1px dashed #383E47 !important;
-        border-radius: 4px !important;
-    }
-
-    /* ── 다운로드 버튼 ── */
-    .stDownloadButton > button {
-        background-color: #252A31 !important;
-        color: #E0E0E0 !important;
-        border: 1px solid #383E47 !important;
-    }
-
-    /* ── 코드 블록 ── */
-    .stCodeBlock, code { background-color: #1C2127 !important; }
-
-    /* ── expander ── */
-    .streamlit-expanderHeader {
-        background-color: #1C2127 !important;
-        border: 1px solid #2F343C !important;
-        border-radius: 4px !important;
-        color: #ABB3BF !important;
-    }
-    .streamlit-expanderContent {
-        background-color: #1C2127 !important;
-        border: 1px solid #2F343C !important;
-        border-top: none !important;
-    }
-
-    /* ── spinner ── */
-    .stSpinner > div { color: #738091 !important; }
-
-    /* ── Palantir 로고 타이포 ── */
-    .palantir-header {
-        font-size: 11px;
-        letter-spacing: 2px;
-        color: #5F6B7C;
-        font-weight: 600;
-        text-transform: uppercase;
-    }
-    .palantir-title {
-        font-size: 28px;
-        font-weight: 700;
-        color: #E0E0E0;
-        letter-spacing: -0.5px;
-        margin: 4px 0 0;
-    }
-    .palantir-sub {
-        font-size: 13px;
-        color: #738091;
-        margin-top: 4px;
-    }
-
-    /* ── 스텝 카드 ── */
-    .step-card {
-        background: #252A31;
-        border: 1px solid #383E47;
-        border-radius: 4px;
-        padding: 16px 20px;
-        margin: 6px 0;
-    }
-    .step-active {
-        border-left: 3px solid #E0E0E0;
-    }
-    .step-done {
-        border-left: 3px solid #5F6B7C;
-        opacity: 0.6;
-    }
-
-    /* ── 뉴스 행 ── */
-    .news-row {
-        background: #1C2127;
-        border: 1px solid #2F343C;
-        border-radius: 4px;
-        padding: 12px 16px;
-        margin: 4px 0;
-    }
-</style>
-""", unsafe_allow_html=True)
+# ── Palantir 다크 테마 적용 ──
+from ui_theme import apply_theme
+apply_theme()
 
 
 # ============================================================
@@ -285,7 +87,7 @@ def _check_main_auth():
     if not password:
         return True  # 비밀번호 미설정 시 인증 없이 접근 허용
 
-    if st.session_state.get("main_authenticated"):
+    if st.session_state.get("authenticated"):
         return True
 
     st.markdown("""
@@ -301,7 +103,7 @@ def _check_main_auth():
 
     if submitted:
         if pw_input == password:
-            st.session_state.main_authenticated = True
+            st.session_state.authenticated = True
             st.rerun()
         else:
             st.error("비밀번호가 올바르지 않습니다.")
@@ -420,8 +222,8 @@ def _render_pipeline_tracker():
             if pending:
                 return '<span style="color:#A68B2D;">◐</span>'
             if done:
-                return '<span style="color:#738091;">●</span>'
-            return '<span style="color:#383E47;">○</span>'
+                return '<span style="color:#666666;">●</span>'
+            return '<span style="color:#333333;">○</span>'
 
         news_dot = _dot(has_news)
         ai_dot = _dot(has_insight)
@@ -440,9 +242,9 @@ def _render_pipeline_tracker():
         name = ld.get("이름", "")[:6]
         company = ld.get("회사명", "")[:6]
         rows_html += (
-            f'<tr style="border-bottom:1px solid #2F343C;">'
-            f'<td style="padding:4px 8px;color:#ABB3BF;font-size:12px;">{name}</td>'
-            f'<td style="padding:4px 8px;color:#5F6B7C;font-size:12px;">{company}</td>'
+            f'<tr style="border-bottom:1px solid #222222;">'
+            f'<td style="padding:4px 8px;color:#AAAAAA;font-size:12px;">{name}</td>'
+            f'<td style="padding:4px 8px;color:#555555;font-size:12px;">{company}</td>'
             f'<td style="text-align:center;padding:4px;">{news_dot}</td>'
             f'<td style="text-align:center;padding:4px;">{ai_dot}</td>'
             f'<td style="text-align:center;padding:4px;">{html_dot}</td>'
@@ -452,17 +254,17 @@ def _render_pipeline_tracker():
         )
 
     table_html = f"""
-    <div style="background:#1C2127;border:1px solid #2F343C;border-radius:4px;padding:8px;margin-bottom:12px;">
+    <div style="background:#111111;border:1px solid #222222;border-radius:2px;padding:8px;margin-bottom:12px;">
         <table style="width:100%;border-collapse:collapse;">
             <thead>
-                <tr style="border-bottom:1px solid #383E47;">
-                    <th style="text-align:left;padding:4px 8px;color:#5F6B7C;font-size:10px;letter-spacing:1px;">LEAD</th>
-                    <th style="text-align:left;padding:4px 8px;color:#5F6B7C;font-size:10px;letter-spacing:1px;">CO.</th>
-                    <th style="text-align:center;padding:4px;color:#5F6B7C;font-size:10px;">NEWS</th>
-                    <th style="text-align:center;padding:4px;color:#5F6B7C;font-size:10px;">AI</th>
-                    <th style="text-align:center;padding:4px;color:#5F6B7C;font-size:10px;">HTML</th>
-                    <th style="text-align:center;padding:4px;color:#5F6B7C;font-size:10px;">REV</th>
-                    <th style="text-align:center;padding:4px;color:#5F6B7C;font-size:10px;">SEND</th>
+                <tr style="border-bottom:1px solid #333333;">
+                    <th style="text-align:left;padding:4px 8px;color:#555555;font-size:10px;letter-spacing:1px;">LEAD</th>
+                    <th style="text-align:left;padding:4px 8px;color:#555555;font-size:10px;letter-spacing:1px;">CO.</th>
+                    <th style="text-align:center;padding:4px;color:#555555;font-size:10px;">NEWS</th>
+                    <th style="text-align:center;padding:4px;color:#555555;font-size:10px;">AI</th>
+                    <th style="text-align:center;padding:4px;color:#555555;font-size:10px;">HTML</th>
+                    <th style="text-align:center;padding:4px;color:#555555;font-size:10px;">REV</th>
+                    <th style="text-align:center;padding:4px;color:#555555;font-size:10px;">SEND</th>
                 </tr>
             </thead>
             <tbody>{rows_html}</tbody>
@@ -491,8 +293,8 @@ with st.sidebar:
     st.markdown("""
     <div style="padding: 8px 0 16px;">
         <div class="palantir-header">DETA PIPELINE</div>
-        <div style="border-top: 1px solid #2F343C; margin: 10px 0;"></div>
-        <div style="font-size:13px; color:#738091;">Newsletter Automation</div>
+        <div style="border-top: 1px solid #222222; margin: 10px 0;"></div>
+        <div style="font-size:13px; color:#666666;">Newsletter Automation</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -509,7 +311,7 @@ with st.sidebar:
             # 현재 활성 스텝 — 클릭 가능하지만 시각적 강조
             st.markdown(f"""
             <div class="step-card step-active" style="cursor:default;">
-                <span style="color:#5F6B7C;font-size:10px;letter-spacing:1.5px;font-weight:600;">STEP {code}</span><br>
+                <span style="color:#555555;font-size:10px;letter-spacing:1.5px;font-weight:600;">STEP {code}</span><br>
                 <span style="color:#E0E0E0;font-weight:600;font-size:14px;">▸ {label}</span>
             </div>""", unsafe_allow_html=True)
         else:
@@ -520,7 +322,7 @@ with st.sidebar:
                 st.session_state.step = num
                 st.rerun()
 
-    st.markdown('<div style="border-top:1px solid #2F343C;margin:16px 0;"></div>', unsafe_allow_html=True)
+    st.markdown('<div style="border-top:1px solid #222222;margin:16px 0;"></div>', unsafe_allow_html=True)
 
     # API 상태
     env = load_env_keys()
@@ -532,17 +334,17 @@ with st.sidebar:
     }
     for name, ok in apis.items():
         dot = "🟢" if ok else "⚫"
-        color = "#8F99A8" if ok else "#404854"
+        color = "#888888" if ok else "#404854"
         st.markdown(f'<span style="color:{color};font-size:13px;">{dot} {name}</span>', unsafe_allow_html=True)
 
-    st.markdown('<div style="border-top:1px solid #2F343C;margin:16px 0;"></div>', unsafe_allow_html=True)
+    st.markdown('<div style="border-top:1px solid #222222;margin:16px 0;"></div>', unsafe_allow_html=True)
 
     # 파이프라인 로그
     if st.session_state.pipeline_log:
         with st.expander("ACTIVITY LOG", expanded=False):
             for entry in reversed(st.session_state.pipeline_log[-20:]):
                 icon = {"info": "·", "success": "✓", "warning": "!", "error": "✗"}.get(entry["level"], "·")
-                clr = {"info": "#5F6B7C", "success": "#738091", "warning": "#A68B2D", "error": "#C5504C"}.get(entry["level"], "#5F6B7C")
+                clr = {"info": "#555555", "success": "#666666", "warning": "#A68B2D", "error": "#C5504C"}.get(entry["level"], "#555555")
                 st.markdown(
                     f'<span style="color:#404854;font-size:11px;">{entry["time"]}</span> '
                     f'<span style="color:{clr};font-size:12px;">{icon} {entry["msg"]}</span>',
@@ -663,18 +465,18 @@ if st.session_state.step == 1:
 
     with tab_apollo:
         st.markdown("""
-        <div style="background:#1C2127;border:1px solid #2F343C;border-radius:4px;padding:16px;margin-bottom:16px;">
+        <div style="background:#111111;border:1px solid #222222;border-radius:2px;padding:16px;margin-bottom:16px;">
             <span class="palantir-header">APOLLO ENRICHMENT</span>
-            <p style="color:#8F99A8;font-size:13px;margin-top:8px;">이름 + 회사(도메인)로 Apollo API에서 이메일, 직함, 산업, 회사 정보를 자동 수집합니다.</p>
+            <p style="color:#888888;font-size:13px;margin-top:8px;">이름 + 회사(도메인)로 Apollo API에서 이메일, 직함, 산업, 회사 정보를 자동 수집합니다.</p>
         </div>
         """, unsafe_allow_html=True)
 
         env = load_env_keys()
         if not env.get("APOLLO_API_KEY"):
             st.markdown("""
-            <div style="background:#252A31;border:1px solid #383E47;border-radius:4px;padding:16px;">
+            <div style="background:#1A1A1A;border:1px solid #333333;border-radius:2px;padding:16px;">
                 <span style="color:#C5504C;">⚫ APOLLO_API_KEY 미설정</span><br>
-                <span style="color:#5F6B7C;font-size:12px;">config/.env에 APOLLO_API_KEY=your_key를 추가하세요.</span>
+                <span style="color:#555555;font-size:12px;">config/.env에 APOLLO_API_KEY=your_key를 추가하세요.</span>
             </div>
             """, unsafe_allow_html=True)
         else:
@@ -748,7 +550,7 @@ if st.session_state.step == 1:
             if st.session_state.get("_apollo_result"):
                 enriched = st.session_state["_apollo_result"]
                 st.markdown("""
-                <div style="border-top:1px solid #2F343C;margin:16px 0;"></div>
+                <div style="border-top:1px solid #222222;margin:16px 0;"></div>
                 <span class="palantir-header">ENRICHMENT RESULT</span>
                 """, unsafe_allow_html=True)
 
@@ -833,7 +635,7 @@ if st.session_state.step == 1:
             if editing_idx == i:
                 # ── 수정 폼 ──
                 st.markdown(f"""
-                <div style="background:#252A31;border:1px solid #738091;border-radius:4px;padding:12px 16px;margin:4px 0;">
+                <div style="background:#1A1A1A;border:1px solid #666666;border-radius:2px;padding:12px 16px;margin:4px 0;">
                     <span style="color:#E0E0E0;font-size:13px;font-weight:600;">리드 수정</span>
                 </div>
                 """, unsafe_allow_html=True)
@@ -1486,9 +1288,9 @@ elif st.session_state.step == 5:
                 idx = int(k)
                 if idx < len(leads):
                     st.markdown(f"""
-                    <div style="background:#252A31;border:1px solid #C5504C;border-radius:4px;padding:8px 12px;margin:4px 0;">
+                    <div style="background:#1A1A1A;border:1px solid #C5504C;border-radius:2px;padding:8px 12px;margin:4px 0;">
                         <span style="color:#C5504C;font-size:12px;">❌ {leads[idx]['이름']}</span>
-                        <span style="color:#ABB3BF;font-size:12px;"> — "{v['comment']}"</span>
+                        <span style="color:#AAAAAA;font-size:12px;"> — "{v['comment']}"</span>
                     </div>
                     """, unsafe_allow_html=True)
 
@@ -1502,9 +1304,9 @@ elif st.session_state.step == 5:
 
         if not auto_email_url:
             st.markdown("""
-            <div style="background:#252A31;border:1px solid #383E47;border-radius:4px;padding:16px;">
+            <div style="background:#1A1A1A;border:1px solid #333333;border-radius:2px;padding:16px;">
                 <span style="color:#C5504C;">⚫ STIBEE_AUTO_EMAIL_URL 미설정</span><br>
-                <span style="color:#8F99A8;font-size:13px;margin-top:4px;">
+                <span style="color:#888888;font-size:13px;margin-top:4px;">
                     아래에서 자동 이메일 API URL을 직접 입력하거나, config/.env에 설정할 수 있습니다.
                 </span>
             </div>
@@ -1549,17 +1351,17 @@ elif st.session_state.step == 5:
 
         # ── ① 구독자 일괄 등록 ──
         st.markdown("""
-        <div style="background:#1C2127;border:1px solid #2F343C;border-radius:4px;padding:16px;margin-bottom:16px;">
+        <div style="background:#111111;border:1px solid #222222;border-radius:2px;padding:16px;margin-bottom:16px;">
             <span class="palantir-header">STEP 1 — SUBSCRIBER REGISTRATION</span>
-            <p style="color:#8F99A8;font-size:13px;margin-top:8px;">발송 전 전체 수신자를 Stibee 주소록에 일괄 등록합니다.</p>
+            <p style="color:#888888;font-size:13px;margin-top:8px;">발송 전 전체 수신자를 Stibee 주소록에 일괄 등록합니다.</p>
         </div>
         """, unsafe_allow_html=True)
 
         subscriber_registered = st.session_state.get("_subscriber_registered", False)
         if subscriber_registered:
             st.markdown(f"""
-            <div style="background:#252A31;border:1px solid #383E47;border-left:3px solid #5F6B7C;border-radius:4px;padding:12px 16px;">
-                <span style="color:#738091;font-size:12px;">✓ 구독자 등록 완료 ({len(leads)}명)</span>
+            <div style="background:#1A1A1A;border:1px solid #333333;border-left:3px solid #555555;border-radius:2px;padding:12px 16px;">
+                <span style="color:#666666;font-size:12px;">✓ 구독자 등록 완료 ({len(leads)}명)</span>
             </div>
             """, unsafe_allow_html=True)
         else:
@@ -1591,13 +1393,13 @@ elif st.session_state.step == 5:
                             st.error(f"Stibee API 오류: {e}")
                             log(f"Stibee 구독자 등록 오류: {e}", "error")
 
-        st.markdown('<div style="border-top:1px solid #2F343C;margin:16px 0;"></div>', unsafe_allow_html=True)
+        st.markdown('<div style="border-top:1px solid #222222;margin:16px 0;"></div>', unsafe_allow_html=True)
 
         # ── ② 자동 이메일 API 일괄 발송 ──
         st.markdown("""
-        <div style="background:#1C2127;border:1px solid #2F343C;border-radius:4px;padding:16px;margin-bottom:16px;">
+        <div style="background:#111111;border:1px solid #222222;border-radius:2px;padding:16px;margin-bottom:16px;">
             <span class="palantir-header">STEP 2 — BATCH SEND</span>
-            <p style="color:#8F99A8;font-size:13px;margin-top:8px;">자동 이메일 API로 리드별 개인화된 뉴스레터를 일괄 발송합니다.</p>
+            <p style="color:#888888;font-size:13px;margin-top:8px;">자동 이메일 API로 리드별 개인화된 뉴스레터를 일괄 발송합니다.</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -1707,9 +1509,9 @@ elif st.session_state.step == 5:
 
                 # ── HTML 전체 코드 ──
                 st.markdown("""
-                <div style="background:#1C2127;border:1px solid #2F343C;border-radius:4px;padding:12px 16px;margin-bottom:8px;">
+                <div style="background:#111111;border:1px solid #222222;border-radius:2px;padding:12px 16px;margin-bottom:8px;">
                     <span class="palantir-header">HTML CODE</span>
-                    <p style="color:#738091;font-size:12px;margin:4px 0 0;">아래 영역 클릭 → <code style="background:#252A31;padding:1px 4px;border-radius:2px;color:#E0E0E0;">Ctrl+A</code> → <code style="background:#252A31;padding:1px 4px;border-radius:2px;color:#E0E0E0;">Ctrl+C</code> 로 복사</p>
+                    <p style="color:#666666;font-size:12px;margin:4px 0 0;">아래 영역 클릭 → <code style="background:#1A1A1A;padding:1px 4px;border-radius:2px;color:#E0E0E0;">Ctrl+A</code> → <code style="background:#1A1A1A;padding:1px 4px;border-radius:2px;color:#E0E0E0;">Ctrl+C</code> 로 복사</p>
                 </div>
                 """, unsafe_allow_html=True)
 
@@ -1727,8 +1529,8 @@ elif st.session_state.step == 5:
                 _html_json = _json.dumps(_safe_html, ensure_ascii=False)
                 _copy_component = f"""
                 <button id="copyHtmlBtn" style="
-                    width:100%;padding:12px 24px;background:#252A31;color:#E0E0E0;
-                    border:1px solid #383E47;border-radius:4px;font-size:14px;font-weight:700;
+                    width:100%;padding:12px 24px;background:#1A1A1A;color:#E0E0E0;
+                    border:1px solid #333333;border-radius:2px;font-size:14px;font-weight:700;
                     cursor:pointer;letter-spacing:0.3px;margin-bottom:8px;
                 " onclick="
                     var html={_html_json};

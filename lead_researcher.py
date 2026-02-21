@@ -31,7 +31,7 @@ def research_lead(lead: dict, days: int = 7, max_per_category: int = 3) -> dict:
             "researched_at": str (ISO),
         }
     """
-    from news_collector_1 import NewsCollectorWrapper
+    from news_collector_1 import NewsCollector
 
     company = lead.get("company", lead.get("회사명", ""))
     industry = lead.get("industry", lead.get("산업", ""))
@@ -47,7 +47,7 @@ def research_lead(lead: dict, days: int = 7, max_per_category: int = 3) -> dict:
             "error": "company 또는 industry가 비어 있습니다.",
         }
 
-    collector = NewsCollectorWrapper()
+    collector = NewsCollector()
 
     # collect_for_company: 산업 트렌드 + 경쟁사 + 규제 + 기업 뉴스 통합 수집
     raw = collector.collect_for_company(

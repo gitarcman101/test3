@@ -62,7 +62,8 @@ def _load_env():
 
 # ── 인증 ──
 def _check_auth():
-    if st.session_state.get("crm_authed"):
+    """메인 앱에서 로그인했으면 통과, 아니면 여기서 인증"""
+    if st.session_state.get("authenticated"):
         return True
     env = _load_env()
     pw = env.get("REVIEW_PASSWORD", "")
@@ -70,7 +71,7 @@ def _check_auth():
         return True
     entered = st.text_input("비밀번호를 입력하세요", type="password", key="crm_pw")
     if entered == pw:
-        st.session_state.crm_authed = True
+        st.session_state.authenticated = True
         st.rerun()
     elif entered:
         st.error("비밀번호가 일치하지 않습니다.")
@@ -81,23 +82,18 @@ if not _check_auth():
     st.stop()
 
 
-# ── CSS ──
-st.markdown("""
-<style>
-    .stApp { background-color: #111418; }
-    h1, h2 { color: #E0E0E0 !important; }
-    h3 { color: #C5CBD3 !important; }
-</style>
-""", unsafe_allow_html=True)
+# ── Palantir 다크 테마 적용 ──
+from ui_theme import apply_theme
+apply_theme()
 
 
 # ── 사이드바 ──
 with st.sidebar:
     st.markdown("""
     <div style="padding: 8px 0 16px;">
-        <div style="font-size:11px;letter-spacing:2px;color:#5F6B7C;font-weight:600;">DETA CRM</div>
-        <div style="border-top: 1px solid #2F343C; margin: 10px 0;"></div>
-        <div style="font-size:13px; color:#738091;">리드 관리 대시보드</div>
+        <div class="palantir-header">DETA CRM</div>
+        <div style="border-top: 1px solid #222222; margin: 10px 0;"></div>
+        <div style="font-size:13px; color:#666666;">Lead Management</div>
     </div>
     """, unsafe_allow_html=True)
 

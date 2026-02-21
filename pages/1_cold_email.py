@@ -66,7 +66,8 @@ def _load_env():
 
 # ── 인증 ──
 def _check_auth():
-    if st.session_state.get("cold_email_authed"):
+    """메인 앱에서 로그인했으면 통과, 아니면 여기서 인증"""
+    if st.session_state.get("authenticated"):
         return True
     env = _load_env()
     pw = env.get("REVIEW_PASSWORD", "")
@@ -74,7 +75,7 @@ def _check_auth():
         return True  # 비밀번호 미설정 시 통과
     entered = st.text_input("비밀번호를 입력하세요", type="password", key="cold_email_pw")
     if entered == pw:
-        st.session_state.cold_email_authed = True
+        st.session_state.authenticated = True
         st.rerun()
     elif entered:
         st.error("비밀번호가 일치하지 않습니다.")
@@ -98,20 +99,20 @@ if "ce_html" not in st.session_state:
     st.session_state.ce_html = None       # 생성된 HTML
 
 
-# ── CSS (Palantir 테마 간소화) ──
+# ── Palantir 다크 테마 적용 ──
+from ui_theme import apply_theme
+apply_theme()
 st.markdown("""
 <style>
-    .stApp { background-color: #111418; }
-    h1, h2 { color: #E0E0E0 !important; }
-    h3 { color: #C5CBD3 !important; }
     .step-indicator {
-        display: inline-block; padding: 4px 12px; border-radius: 3px;
-        font-size: 12px; font-weight: 600; letter-spacing: 1px;
+        display: inline-block; padding: 4px 12px; border-radius: 2px;
+        font-size: 11px; font-weight: 600; letter-spacing: 1.5px;
         margin-right: 8px;
+        font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
     }
-    .step-active { background: #252A31; color: #E0E0E0; border: 1px solid #383E47; }
-    .step-done { background: #1C2127; color: #738091; }
-    .step-pending { background: transparent; color: #404854; }
+    .step-active { background: #1A1A1A; color: #FFFFFF; border: 1px solid #444444; }
+    .step-done { background: #111111; color: #555555; }
+    .step-pending { background: transparent; color: #333333; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -120,35 +121,42 @@ st.markdown("""
 with st.sidebar:
     st.markdown("""
     <div style="padding: 8px 0 16px;">
-        <div style="font-size:11px;letter-spacing:2px;color:#5F6B7C;font-weight:600;">DETA COLD EMAIL</div>
-        <div style="border-top: 1px solid #2F343C; margin: 10px 0;"></div>
-        <div style="font-size:13px; color:#738091;">Track A: 1:1 맞춤 콜드메일</div>
+        <div class="palantir-header">DETA COLD EMAIL</div>
+        <div style="border-top: 1px solid #222222; margin: 10px 0;"></div>
+        <div style="font-size:13px; color:#666666;">Track A: 1:1 Personalized</div>
     </div>
     """, unsafe_allow_html=True)
 
-    ce_steps = {1: "리드 입력", 2: "기업 리서치", 3: "메일 생성", 4: "리뷰 & 발송"}
-    for num, label in ce_steps.items():
-        is_current = num == st.session_state.ce_step
-        is_done = num < st.session_state.ce_step
-        if is_current:
-            st.markdown(f'<span class="step-indicator step-active">STEP {num:02d}  ▸ {label}</span>', unsafe_allow_html=True)
-        elif is_done:
-            if st.button(f"STEP {num:02d}  {label} ✓", key=f"ce_nav_{num}", use_container_width=True):
+    ce_steps = {
+        1: ("01", "리드 입력"),
+        2: ("02", "기업 리서치"),
+        3: ("03", "메일 생성"),
+        4: ("04", "리뷰 & 발송"),
+    }
+    for num, (code, label) in ce_steps.items():
+        if num == st.session_state.ce_step:
+            st.markdown(f"""
+            <div class="step-card step-active" style="cursor:default;">
+                <span style="color:#555555;font-size:10px;letter-spacing:1.5px;font-weight:600;">STEP {code}</span><br>
+                <span style="color:#FFFFFF;font-weight:600;font-size:14px;">▸ {label}</span>
+            </div>""", unsafe_allow_html=True)
+        else:
+            done = num < st.session_state.ce_step
+            suffix = " ✓" if done else ""
+            if st.button(f"STEP {code}  {label}{suffix}", key=f"ce_nav_{num}", use_container_width=True):
                 st.session_state.ce_step = num
                 st.rerun()
-        else:
-            st.markdown(f'<span class="step-indicator step-pending">STEP {num:02d}  {label}</span>', unsafe_allow_html=True)
 
-    st.markdown('<div style="border-top:1px solid #2F343C;margin:16px 0;"></div>', unsafe_allow_html=True)
+    st.markdown('<div style="border-top:1px solid #222222;margin:16px 0;"></div>', unsafe_allow_html=True)
 
     # CRM 통계
     stats = _crm.get_stats()
     if stats.get("total", 0) > 0:
-        st.markdown('<span style="font-size:11px;letter-spacing:2px;color:#5F6B7C;font-weight:600;">LEAD STATUS</span>', unsafe_allow_html=True)
+        st.markdown('<span class="palantir-header">LEAD STATUS</span>', unsafe_allow_html=True)
         for status_key in ["new", "researched", "sent", "replied", "meeting_set", "no_response"]:
             cnt = stats.get(status_key, 0)
             if cnt > 0:
-                st.markdown(f'<span style="color:#8F99A8;font-size:13px;">{status_key}: {cnt}</span>', unsafe_allow_html=True)
+                st.markdown(f'<span style="color:#666666;font-size:13px;">{status_key}: {cnt}</span>', unsafe_allow_html=True)
 
 
 # ── 유틸리티 함수 ──
@@ -177,7 +185,7 @@ def _show_research_preview(research: dict):
 
 if st.session_state.ce_step == 1:
     st.markdown("### 🎯 콜드메일 — 리드 입력")
-    st.markdown('<span style="color:#738091;font-size:14px;">콜드메일을 보낼 리드 정보를 입력합니다.</span>', unsafe_allow_html=True)
+    st.markdown('<span style="color:#666666;font-size:14px;">콜드메일을 보낼 리드 정보를 입력합니다.</span>', unsafe_allow_html=True)
     st.markdown("")
 
     # 기존 CRM 리드 선택 또는 신규 입력
@@ -225,7 +233,7 @@ if st.session_state.ce_step == 1:
                     st.markdown(
                         f"**{lead.get('company', '')}** — {lead.get('contact_name', '')} "
                         f"({lead.get('contact_email', '')})"
-                        f"<br><span style='color:#738091;font-size:12px;'>"
+                        f"<br><span style='color:#555555;font-size:12px;'>"
                         f"산업: {lead.get('industry', '')} | 상태: {lead.get('status', '')} | "
                         f"{lead.get('lead_id', '')}</span>",
                         unsafe_allow_html=True,
@@ -240,7 +248,7 @@ if st.session_state.ce_step == 1:
                         else:
                             st.session_state.ce_step = 2
                         st.rerun()
-                st.markdown('<div style="border-top:1px solid #2F343C;margin:8px 0;"></div>', unsafe_allow_html=True)
+                st.markdown('<div style="border-top:1px solid #222222;margin:8px 0;"></div>', unsafe_allow_html=True)
         else:
             st.info("등록된 신규/리서치 완료 리드가 없습니다. 왼쪽 탭에서 새 리드를 입력하세요.")
 
@@ -260,7 +268,7 @@ elif st.session_state.ce_step == 2:
 
     st.markdown("### 🔬 기업 리서치")
     st.markdown(
-        f'<span style="color:#738091;font-size:14px;">'
+        f'<span style="color:#666666;font-size:14px;">'
         f'**{lead["company"]}** ({lead["industry"]}) — {lead["contact_name"]}에 대한 맞춤 리서치를 수행합니다.'
         f'</span>',
         unsafe_allow_html=True,
@@ -322,7 +330,7 @@ elif st.session_state.ce_step == 3:
 
     st.markdown("### ✍️ 콜드메일 생성")
     st.markdown(
-        f'<span style="color:#738091;font-size:14px;">'
+        f'<span style="color:#666666;font-size:14px;">'
         f'**{lead["company"]}** {lead["contact_name"]}님께 보낼 콜드메일을 AI가 작성합니다.'
         f'</span>',
         unsafe_allow_html=True,
@@ -335,8 +343,8 @@ elif st.session_state.ce_step == 3:
         st.markdown(f"**제목:** {email.get('subject_line', '')}")
         st.markdown(f"**인사:** {email.get('greeting', '')}")
         st.markdown("**본문:**")
-        st.markdown(f"<div style='background:#1C2127;border:1px solid #2F343C;border-radius:4px;padding:16px;color:#ABB3BF;line-height:1.8;'>{email.get('body', '').replace(chr(10), '<br>')}</div>", unsafe_allow_html=True)
-        st.markdown(f"<span style='color:#5F6B7C;font-size:13px;'>{email.get('signature', '').replace(chr(10), '<br>')}</span>", unsafe_allow_html=True)
+        st.markdown(f"<div style='background:#111111;border:1px solid #222222;border-radius:2px;padding:16px;color:#AAAAAA;line-height:1.8;'>{email.get('body', '').replace(chr(10), '<br>')}</div>", unsafe_allow_html=True)
+        st.markdown(f"<span style='color:#555555;font-size:13px;'>{email.get('signature', '').replace(chr(10), '<br>')}</span>", unsafe_allow_html=True)
 
         col1, col2 = st.columns(2)
         with col1:
@@ -398,7 +406,7 @@ elif st.session_state.ce_step == 4:
 
     st.markdown("### 📤 리뷰 & 발송")
     st.markdown(
-        f'<span style="color:#738091;font-size:14px;">'
+        f'<span style="color:#666666;font-size:14px;">'
         f'**{lead.get("contact_email", "")}**로 콜드메일을 발송합니다.'
         f'</span>',
         unsafe_allow_html=True,
