@@ -1,15 +1,15 @@
 # PLAN_TRACK_A.md — 콜드메일 구현 명세
 
 > **참조**: PLAN_MASTER.md (전체 아키텍처)
-> **상태**: Track A는 기존 test3 코드의 확장. 신규 코드 20%, 수정 80%.
-> **구현 도구**: Claude Code (로컬 test3 repo에서 직접 수정)
+> **상태**: Track A는 기존 DETA-Newsletter 코드의 확장. 신규 코드 20%, 수정 80%.
+> **구현 도구**: Claude Code (로컬 DETA-Newsletter repo에서 직접 수정)
 > **변경**: Day 0/3/7 자동 시퀀스 삭제 → 1회 발송 + 수동 follow-up
 
 ---
 
 ## 1. 리드 데이터 스키마
 
-### 현재 (test3)
+### 현재 (DETA-Newsletter)
 리드는 Excel 업로드 또는 수동 입력. 필드:
 - 회사명, 담당자명, 이메일, 산업, (선택) 메모
 

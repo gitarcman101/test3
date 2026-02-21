@@ -2,7 +2,7 @@
 
 > **목적**: 이 문서는 Claude Code에서 구현 시 참조하는 최상위 기획 문서입니다.
 > **최종 수정**: 2026-02-20
-> **Repo**: gitarcman101/test3
+> **Repo**: gitarcman101/DETA-Newsletter
 
 ---
 
@@ -23,7 +23,7 @@ DETA AI Consulting Korea의 이메일 기반 리드 발굴 및 육성 시스템.
 
 ---
 
-## 2. 현재 test3 Repo 현황 분석
+## 2. 현재 DETA-Newsletter Repo 현황 분석
 
 ### 이미 구축된 것 (그대로 활용)
 
@@ -39,7 +39,7 @@ templates/newsletter_v2.html → Jinja2 이메일 템플릿 (Palantir 다크 테
 config/config.yaml         → 파이프라인 설정
 ```
 
-### 핵심 인식: test3는 이미 콜드메일 MVP
+### 핵심 인식: DETA-Newsletter는 이미 콜드메일 MVP
 
 현재 파이프라인은 "뉴스레터"라고 명명되었지만 실제로는:
 - 리드 개별 입력 → 리드별 산업/기업 맞춤 인사이트 → 최대 10명 동시 처리 → 리뷰 후 발송
@@ -122,7 +122,7 @@ config/config.yaml         → 파이프라인 설정
 ### 뉴스레터 (Track B)
 
 - 스티비 일반이메일 API (구독자 전체 대상 발송)
-- 현재 test3의 자동이메일 API와 별도 엔드포인트
+- 현재 DETA-Newsletter의 자동이메일 API와 별도 엔드포인트
 
 ---
 

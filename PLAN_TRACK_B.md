@@ -2,7 +2,7 @@
 
 > **참조**: PLAN_MASTER.md (전체 아키텍처)
 > **상태**: Track B는 완전 신규 모듈. Track A 안정화 후 구현.
-> **구현 도구**: Claude Code (로컬 test3 repo에서 직접 생성)
+> **구현 도구**: Claude Code (로컬 DETA-Newsletter repo에서 직접 생성)
 
 ---
 
